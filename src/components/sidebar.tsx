@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Leaf, BarChart2, ClipboardList, Truck, TrendingUp, LogOut } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { Leaf, BarChart2, ClipboardList, Truck, TrendingUp, LogOut, Package } from 'lucide-react'
+  import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
 
 const NAV = [
