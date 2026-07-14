@@ -10,6 +10,7 @@ const NAV = [
   { href: '/dashboard', label: 'لوحة التحكم',  Icon: BarChart2,    roles: ['facility_manager'] },
   { href: '/requests',  label: 'طلباتي',        Icon: ClipboardList, roles: ['department_user']  },
   { href: '/queue',     label: 'قائمة المهام',  Icon: Truck,         roles: ['facility_staff']   },
+{ href: '/warehouse', label: 'المستودع',       Icon: Package,       roles: ['facility_staff', 'facility_manager'] },
   { href: '/analytics', label: 'التحليلات',     Icon: TrendingUp,    roles: ['facility_manager','facility_staff','department_user'] },
 ]
 
