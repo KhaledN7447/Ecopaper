@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Leaf, BarChart2, ClipboardList, Truck, TrendingUp, LogOut, Package, Recycle } from 'lucide-react'
+import { Leaf, BarChart2, ClipboardList, Truck, TrendingUp, LogOut, Package, Recycle, Sparkles } from 'lucide-react'
   import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
 
@@ -13,6 +13,7 @@ const NAV = [
 { href: '/warehouse', label: 'المستودع',       Icon: Package,       roles: ['facility_staff', 'facility_manager'] },
   { href: '/partners',  label: 'الشركاء',        Icon: Recycle,       roles: ['facility_staff', 'facility_manager'] },
   { href: '/analytics', label: 'التحليلات',     Icon: TrendingUp,    roles: ['facility_manager','facility_staff','department_user'] },
+  { href: '/ai-insights', label: 'التوقعات الذكية', Icon: Sparkles, roles: ['facility_staff', 'facility_manager'] },
 ]
 
 export default function Sidebar({ profile }: { profile: Profile }) {
