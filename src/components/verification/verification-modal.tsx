@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { X, Upload, CheckCircle } from 'lucide-react'
+import { X, Upload, CheckCircle, Sparkles, AlertTriangle } from 'lucide-react'
 import { PAPER_TYPES, toTrees, toCO2kg } from '@/lib/utils'
 import type { PickupRequest } from '@/types'
 
@@ -11,17 +11,51 @@ interface Props {
   onClose: () => void
 }
 
-export default function VerificationModal({ request: r, onComplete, onClose }: Props) {
-  const [weight,   setWeight]   = useState('')
-  const [notes,    setNotes]    = useState('')
-  const [file,     setFile]     = useState<File | null>(null)
-  const [preview,  setPreview]  = useState(false)
-  const [pending,  startTrans]  = useTransition()
+type Classification = { type: string; confidence: number; reason: string } | null
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+function fileToBase64(file: File): Promise<{ data: string; mediaType: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      resolve({ data: result.split(',')[1], mediaType: file.type })
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+export default function VerificationModal({ request: r, onComplete, onClose }: Props) {
+  const [weight,      setWeight]      = useState('')
+  const [notes,       setNotes]       = useState('')
+  const [file,        setFile]        = useState<File | null>(null)
+  const [preview,     setPreview]     = useState(false)
+  const [pending,     startTrans]     = useTransition()
+  const [classifying, setClassifying] = useState(false)
+  const [classification, setClassification] = useState<Classification>(null)
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null
     setFile(f)
     setPreview(!!f)
+    setClassification(null)
+    if (!f) return
+
+    setClassifying(true)
+    try {
+      const { data, mediaType } = await fileToBase64(f)
+      const res = await fetch('/api/classify-paper', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ imageBase64: data, mediaType }),
+      })
+      const result = await res.json()
+      if (!result.error) setClassification(result)
+    } catch {
+      // فشل صامت — التصنيف اختياري ولا يمنع إتمام الطلب
+    } finally {
+      setClassifying(false)
+    }
   }
 
   async function handle() {
@@ -74,6 +108,35 @@ export default function VerificationModal({ request: r, onComplete, onClose }: P
                 : <><Upload className="w-6 h-6 text-gray-400 mb-1" /><span className="text-sm text-gray-400">انقر لرفع صورة</span></>
               }
             </label>
+
+            {classifying && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-2">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                جارٍ تحليل نوع الورق بالذكاء الاصطناعي...
+              </div>
+            )}
+
+            {!classifying && classification && classification.type !== 'unknown' && (
+              <div className={`mt-2 rounded-lg px-3 py-2 text-xs flex items-start gap-1.5
+                ${classification.type === r.paper_type ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'}`}>
+                {classification.type === r.paper_type
+                  ? <Sparkles className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                  : <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />}
+                <div>
+                  <p className="font-medium">
+                    الذكاء الاصطناعي يرى: {PAPER_TYPES[classification.type as keyof typeof PAPER_TYPES]}
+                    {' '}({Math.round(classification.confidence * 100)}٪ ثقة)
+                  </p>
+                  {classification.type !== r.paper_type && (
+                    <p className="mt-0.5">يختلف عن النوع المسجل بالطلب ({PAPER_TYPES[r.paper_type]}) — تحقق قبل الإغلاق.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!classifying && classification?.type === 'unknown' && (
+              <p className="text-xs text-gray-400 mt-2">تعذّر على الذكاء الاصطناعي تمييز نوع الورق من الصورة.</p>
+            )}
           </div>
 
           {/* Environmental impact */}
