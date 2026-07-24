@@ -1,0 +1,209 @@
+From bc1e180d4b0a3d60698831affc2f186c72ef9c62 Mon Sep 17 00:00:00 2001
+From: Khaled <khaled@ecopaper.local>
+Date: Thu, 23 Jul 2026 18:51:45 +0000
+Subject: [PATCH] feat: AI paper-type classification via Claude Vision at
+ verification step
+
+- add /api/classify-paper route (mirrors ai-summary pattern, needs ANTHROPIC_API_KEY)
+- verification modal now classifies the uploaded proof photo and flags a
+  mismatch against the declared paper_type before staff closes the request
+---
+ src/app/api/classify-paper/route.ts           | 78 +++++++++++++++++++
+ .../verification/verification-modal.tsx       | 77 ++++++++++++++++--
+ 2 files changed, 148 insertions(+), 7 deletions(-)
+ create mode 100644 src/app/api/classify-paper/route.ts
+
+diff --git a/src/app/api/classify-paper/route.ts b/src/app/api/classify-paper/route.ts
+new file mode 100644
+index 0000000..9e0f043
+--- /dev/null
++++ b/src/app/api/classify-paper/route.ts
+@@ -0,0 +1,78 @@
++// src/app/api/classify-paper/route.ts
++// تصنيف نوع الورق من صورة الإثبات باستخدام Claude Vision.
++// تحتاج متغير بيئة ANTHROPIC_API_KEY في Vercel. بدونه، تعيد { error: 'no_api_key' } بدون كسر الصفحة.
++
++import { NextResponse } from 'next/server'
++
++const VALID_TYPES = ['mixed', 'shredded', 'cardboard', 'confidential'] as const
++
++export async function POST(req: Request) {
++  const apiKey = process.env.ANTHROPIC_API_KEY
++  if (!apiKey) {
++    return NextResponse.json({ error: 'no_api_key' })
++  }
++
++  const { imageBase64, mediaType } = await req.json()
++  if (!imageBase64 || !mediaType) {
++    return NextResponse.json({ error: 'missing_image' })
++  }
++
++  const prompt = `أنت مساعد تصنيف في منصة EcoPaper لإدارة نفايات الورق الجامعي.
++انظر للصورة المرفقة وصنّف نوع الورق الظاهر فيها إلى واحدة فقط من هذه الفئات:
++- mixed: ورق مختلط (أوراق مكتبية، مجلات، أوراق عامة غير متجانسة)
++- shredded: ورق مقطوع (خضع لآلة تقطيع)
++- cardboard: كرتون (صناديق، تغليف مقوى)
++- confidential: وثائق سرية (مغلفة أو عليها ختم سرية واضح)
++
++أجب بصيغة JSON فقط بدون أي نص إضافي، بالشكل التالي:
++{"type": "<one of the four keys above>", "confidence": <0 to 1>, "reason": "<جملة عربية قصيرة توضح سبب التصنيف>"}
++
++إذا لم تستطع تمييز محتوى واضح للورق في الصورة، أعد {"type": "unknown", "confidence": 0, "reason": "..."}.`
++
++  try {
++    const res = await fetch('https://api.anthropic.com/v1/messages', {
++      method: 'POST',
++      headers: {
++        'content-type': 'application/json',
++        'x-api-key': apiKey,
++        'anthropic-version': '2023-06-01',
++      },
++      body: JSON.stringify({
++        model: 'claude-sonnet-4-6',
++        max_tokens: 300,
++        messages: [{
++          role: 'user',
++          content: [
++            { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
++            { type: 'text', text: prompt },
++          ],
++        }],
++      }),
++    })
++
++    if (!res.ok) return NextResponse.json({ error: 'request_failed' })
++
++    const data = await res.json()
++    const text = data?.content?.find((c: any) => c.type === 'text')?.text ?? ''
++
++    let parsed: { type: string; confidence: number; reason: string } | null = null
++    try {
++      const cleaned = text.replace(/```json|```/g, '').trim()
++      parsed = JSON.parse(cleaned)
++    } catch {
++      return NextResponse.json({ error: 'parse_failed' })
++    }
++
++    if (!parsed || !VALID_TYPES.includes(parsed.type as any)) {
++      return NextResponse.json({
++        type: 'unknown',
++        confidence: 0,
++        reason: parsed?.reason ?? 'تعذّر تمييز نوع الورق بثقة كافية',
++      })
++    }
++
++    return NextResponse.json(parsed)
++  } catch {
++    return NextResponse.json({ error: 'request_failed' })
++  }
++}
+diff --git a/src/components/verification/verification-modal.tsx b/src/components/verification/verification-modal.tsx
+index 806f2e1..34af96e 100644
+--- a/src/components/verification/verification-modal.tsx
++++ b/src/components/verification/verification-modal.tsx
+@@ -1,7 +1,7 @@
+ 'use client'
+ 
+ import { useState, useTransition } from 'react'
+-import { X, Upload, CheckCircle } from 'lucide-react'
++import { X, Upload, CheckCircle, Sparkles, AlertTriangle } from 'lucide-react'
+ import { PAPER_TYPES, toTrees, toCO2kg } from '@/lib/utils'
+ import type { PickupRequest } from '@/types'
+ 
+@@ -11,17 +11,51 @@ interface Props {
+   onClose: () => void
+ }
+ 
++type Classification = { type: string; confidence: number; reason: string } | null
++
++function fileToBase64(file: File): Promise<{ data: string; mediaType: string }> {
++  return new Promise((resolve, reject) => {
++    const reader = new FileReader()
++    reader.onload = () => {
++      const result = reader.result as string
++      resolve({ data: result.split(',')[1], mediaType: file.type })
++    }
++    reader.onerror = reject
++    reader.readAsDataURL(file)
++  })
++}
++
+ export default function VerificationModal({ request: r, onComplete, onClose }: Props) {
+-  const [weight,   setWeight]   = useState('')
+-  const [notes,    setNotes]    = useState('')
+-  const [file,     setFile]     = useState<File | null>(null)
+-  const [preview,  setPreview]  = useState(false)
+-  const [pending,  startTrans]  = useTransition()
++  const [weight,      setWeight]      = useState('')
++  const [notes,       setNotes]       = useState('')
++  const [file,        setFile]        = useState<File | null>(null)
++  const [preview,     setPreview]     = useState(false)
++  const [pending,     startTrans]     = useTransition()
++  const [classifying, setClassifying] = useState(false)
++  const [classification, setClassification] = useState<Classification>(null)
+ 
+-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
++  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+     const f = e.target.files?.[0] ?? null
+     setFile(f)
+     setPreview(!!f)
++    setClassification(null)
++    if (!f) return
++
++    setClassifying(true)
++    try {
++      const { data, mediaType } = await fileToBase64(f)
++      const res = await fetch('/api/classify-paper', {
++        method: 'POST',
++        headers: { 'content-type': 'application/json' },
++        body: JSON.stringify({ imageBase64: data, mediaType }),
++      })
++      const result = await res.json()
++      if (!result.error) setClassification(result)
++    } catch {
++      // فشل صامت — التصنيف اختياري ولا يمنع إتمام الطلب
++    } finally {
++      setClassifying(false)
++    }
+   }
+ 
+   async function handle() {
+@@ -74,6 +108,35 @@ export default function VerificationModal({ request: r, onComplete, onClose }: P
+                 : <><Upload className="w-6 h-6 text-gray-400 mb-1" /><span className="text-sm text-gray-400">انقر لرفع صورة</span></>
+               }
+             </label>
++
++            {classifying && (
++              <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-2">
++                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
++                جارٍ تحليل نوع الورق بالذكاء الاصطناعي...
++              </div>
++            )}
++
++            {!classifying && classification && classification.type !== 'unknown' && (
++              <div className={`mt-2 rounded-lg px-3 py-2 text-xs flex items-start gap-1.5
++                ${classification.type === r.paper_type ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'}`}>
++                {classification.type === r.paper_type
++                  ? <Sparkles className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
++                  : <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />}
++                <div>
++                  <p className="font-medium">
++                    الذكاء الاصطناعي يرى: {PAPER_TYPES[classification.type as keyof typeof PAPER_TYPES]}
++                    {' '}({Math.round(classification.confidence * 100)}٪ ثقة)
++                  </p>
++                  {classification.type !== r.paper_type && (
++                    <p className="mt-0.5">يختلف عن النوع المسجل بالطلب ({PAPER_TYPES[r.paper_type]}) — تحقق قبل الإغلاق.</p>
++                  )}
++                </div>
++              </div>
++            )}
++
++            {!classifying && classification?.type === 'unknown' && (
++              <p className="text-xs text-gray-400 mt-2">تعذّر على الذكاء الاصطناعي تمييز نوع الورق من الصورة.</p>
++            )}
+           </div>
+ 
+           {/* Environmental impact */}
+-- 
+2.43.0
+
