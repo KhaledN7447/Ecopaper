@@ -1,0 +1,37 @@
+{
+  "pages": {
+    "/login/page": [
+      "static/chunks/ecopaper-v2_src_app_globals_1d9cb656.css",
+      "static/chunks/390d8_next_dist_f567b816._.js",
+      "static/chunks/ecopaper-v2_src_app_layout_tsx_93e78473._.js",
+      "static/chunks/390d8_next_dist_client_components_builtin_global-error_de950974.js",
+      "static/chunks/390d8_7587e9d7._.js",
+      "static/chunks/ecopaper-v2_src_f4bd54dc._.js",
+      "static/chunks/ecopaper-v2_src_app_login_page_tsx_de950974._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_517f823d._.js",
+      "static/chunks/390d8_next_dist_compiled_react-dom_1a689eb5._.js",
+      "static/chunks/390d8_next_dist_compiled_next-devtools_index_3ca92653.js",
+      "static/chunks/390d8_next_dist_compiled_cff7d357._.js",
+      "static/chunks/390d8_next_dist_client_8126ce19._.js",
+      "static/chunks/390d8_next_dist_d0984eb5._.js",
+      "static/chunks/390d8_@swc_helpers_cjs_4693d09d._.js",
+      "static/chunks/ecopaper-v2_a0ff3932._.js",
+      "static/chunks/turbopack-ecopaper-v2_0be3e984._.js"
+    ],
+    "/page": [
+      "static/chunks/ecopaper-v2_src_app_globals_1d9cb656.css",
+      "static/chunks/390d8_next_dist_f567b816._.js",
+      "static/chunks/ecopaper-v2_src_app_layout_tsx_93e78473._.js",
+      "static/chunks/390d8_next_dist_client_components_builtin_global-error_de950974.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_517f823d._.js",
+      "static/chunks/390d8_next_dist_compiled_react-dom_1a689eb5._.js",
+      "static/chunks/390d8_next_dist_compiled_next-devtools_index_3ca92653.js",
+      "static/chunks/390d8_next_dist_compiled_cff7d357._.js",
+      "static/chunks/390d8_next_dist_client_8126ce19._.js",
+      "static/chunks/390d8_next_dist_d0984eb5._.js",
+      "static/chunks/390d8_@swc_helpers_cjs_4693d09d._.js",
+      "static/chunks/ecopaper-v2_a0ff3932._.js",
+      "static/chunks/turbopack-ecopaper-v2_0be3e984._.js"
+    ]
+  }
+}

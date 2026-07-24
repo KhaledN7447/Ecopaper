@@ -1,0 +1,31 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/ecopaper-v2_32e5c420._.js",
+        "server/edge/chunks/[root-of-the-server]__f746fce9._.js",
+        "server/edge/chunks/turbopack-ecopaper-v2_edge-wrapper_fd9948b6.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^/.*$",
+          "originalSource": "/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "e3Ij3XRsVZfJxFcScD0/EH9v8WVvj1t6uIYirPpcXFc=",
+        "__NEXT_PREVIEW_MODE_ID": "f39e9c8216d983606960e499b5e018e5",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "4a57e2df5a63d7d7cbffc7a3e175822856bf95fc2f5554e94314e1b1c58136da",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "b26c0032a6c03b6683f42e57e6110d97d1981023ba1876b099a18981020cb87f"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

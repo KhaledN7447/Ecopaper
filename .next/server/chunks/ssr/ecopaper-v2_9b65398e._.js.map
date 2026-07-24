@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/test/Downloads/ProjectYU/ecopaper-v2/ecopaper-v2/src/app/layout.tsx"],"sourcesContent":["export const dynamic = 'force-dynamic'\nimport type { Metadata } from 'next'\nimport './globals.css'\n\nexport const metadata: Metadata = {\n  title: 'EcoPaper — إدارة النفايات الورقية',\n  description: 'منصة إدارة النفايات الورقية الجامعية',\n}\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang=\"ar\" dir=\"rtl\">\n      <body className=\"antialiased\">{children}</body>\n    </html>\n  )\n}\n"],"names":[],"mappings":";;;;;;;;;;AAAO,MAAM,UAAU;;AAIhB,MAAM,WAAqB;IAChC,OAAO;IACP,aAAa;AACf;AAEe,SAAS,WAAW,EAAE,QAAQ,EAAiC;IAC5E,qBACE,gQAAC;QAAK,MAAK;QAAK,KAAI;kBAClB,cAAA,gQAAC;YAAK,WAAU;sBAAe;;;;;;;;;;;AAGrC","debugId":null}},
+    {"offset": {"line": 42, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/test/Downloads/ProjectYU/ecopaper-v2/ecopaper-v2/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = (\n  require('../../module.compiled') as typeof import('../../module.compiled')\n).vendored['react-rsc']!.ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":"AAAAA,OAAOC,OAAO,GACZC,QAAQ,wIACRC,QAAQ,CAAC,YAAY,CAAEC,kBAAkB","ignoreList":[0],"debugId":null}}]
+}
