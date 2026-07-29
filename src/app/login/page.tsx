@@ -40,66 +40,63 @@ export default function LoginPage() {
   }
 
   const features = [
-    { Icon: Recycle,    label: 'تدوير ذكي',     desc: 'تتبع كل عملية جمع من الطلب حتى إعادة التدوير' },
+    { Icon: Recycle,     label: 'تدوير ذكي',      desc: 'تتبع كل عملية جمع من الطلب حتى إعادة التدوير' },
     { Icon: Package,     label: 'إدارة المستودع', desc: 'رصد كميات الورق المجمّع بدقة وسهولة' },
-    { Icon: TrendingUp, label: 'تقارير وتحليلات', desc: 'قياس الأثر البيئي لكل قسم بالجامعة' },
+    { Icon: TrendingUp,  label: 'تقارير وتحليلات', desc: 'قياس الأثر البيئي لكل قسم بالجامعة' },
   ]
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-6"
-      style={{ background: 'linear-gradient(135deg, #14532D 0%, #166534 60%, #15803D 100%)' }}
-    >
+    <div className="min-h-screen flex items-center justify-center p-6 bg-green-800">
       <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-10 items-center">
 
         {/* القسم الداعم / الترويجي */}
-        <div className="hidden lg:flex flex-col text-white px-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-5"
-               style={{ background: 'rgba(255,255,255,0.15)' }}>
-            <Leaf className="w-7 h-7 text-white" />
-          </div>
+        <div className="hidden lg:flex flex-col text-white px-2 relative overflow-hidden">
 
-          <h1 className="text-4xl font-bold mb-3">EcoPaper</h1>
-          <p className="text-green-200 text-base mb-8 leading-relaxed">
-            منصة رقمية متكاملة تربط أقسام الجامعة بفريق الاستدامة، لتحويل نفايات الورق
-            إلى أثر بيئي إيجابي قابل للقياس، بخطوات بسيطة وشفافة للجميع.
-          </p>
+          {/* دوائر عائمة */}
+          <div className="pointer-events-none absolute -top-8 -left-8 h-36 w-36 rounded-full bg-white/5 animate-float-1" />
+          <div className="pointer-events-none absolute bottom-10 left-4 h-20 w-20 rounded-full bg-white/5 animate-float-2" />
+          <div className="pointer-events-none absolute top-1/3 -right-6 h-16 w-16 rounded-full bg-white/5 animate-float-3" />
 
-          {/* رسم توضيحي بسيط SVG بدون رفع صور */}
-          <svg viewBox="0 0 300 140" className="w-full max-w-xs mb-8 opacity-90">
-            <circle cx="60" cy="70" r="45" fill="rgba(255,255,255,0.08)" />
-            <circle cx="150" cy="40" r="28" fill="rgba(255,255,255,0.12)" />
-            <circle cx="230" cy="90" r="35" fill="rgba(255,255,255,0.10)" />
-            <path d="M40 75 Q60 40 90 60 Q100 70 85 85 Q65 100 40 75 Z" fill="#4ADE80" opacity="0.85" />
-            <path d="M140 45 Q160 20 185 35 Q195 45 180 55 Q160 68 140 45 Z" fill="#86EFAC" opacity="0.8" />
-            <path d="M210 95 Q235 65 260 82 Q270 92 255 105 Q230 120 210 95 Z" fill="#4ADE80" opacity="0.75" />
-          </svg>
+          {/* أوراق عائمة */}
+          <Leaf className="pointer-events-none absolute top-10 right-6 w-5 h-5 text-white/15 animate-float-3" />
+          <Leaf className="pointer-events-none absolute bottom-28 right-20 w-4 h-4 text-white/10 animate-float-1" />
+          <Leaf className="pointer-events-none absolute top-24 left-8 w-4 h-4 text-white/10 animate-float-2" />
 
-          <div className="space-y-4">
-            {features.map(({ Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                     style={{ background: 'rgba(255,255,255,0.12)' }}>
-                  <Icon className="w-4 h-4 text-green-200" />
+          <div className="relative">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-5 bg-white/15">
+              <Leaf className="w-7 h-7 text-white" />
+            </div>
+
+            <h1 className="text-4xl font-bold mb-3">EcoPaper</h1>
+            <p className="text-green-100 text-base mb-8 leading-relaxed">
+              منصة رقمية متكاملة تربط أقسام الجامعة بفريق الاستدامة، لتحويل نفايات الورق
+              إلى أثر بيئي إيجابي قابل للقياس، بخطوات بسيطة وشفافة للجميع.
+            </p>
+
+            <div className="space-y-3">
+              {features.map(({ Icon, label, desc }) => (
+                <div key={label} className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center bg-white/15">
+                    <Icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{label}</p>
+                    <p className="text-xs text-green-100/85">{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{label}</p>
-                  <p className="text-xs text-green-300">{desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
         {/* فورم تسجيل الدخول */}
         <div className="w-full max-w-sm mx-auto">
           <div className="text-center mb-8 lg:hidden">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3"
-                 style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3 bg-white/15">
               <Leaf className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-white">EcoPaper</h1>
-            <p className="text-green-300 text-sm mt-1">منصة إدارة النفايات الورقية الجامعية</p>
+            <p className="text-green-100 text-sm mt-1">منصة إدارة النفايات الورقية الجامعية</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-2xl">
@@ -142,7 +139,7 @@ export default function LoginPage() {
               </button>
             </form>
           </div>
-          <p className="text-center text-green-400 text-xs mt-4">تواصل مع مسؤول النظام للحصول على حساب</p>
+          <p className="text-center text-green-100 text-xs mt-4">تواصل مع مسؤول النظام للحصول على حساب</p>
         </div>
 
       </div>
