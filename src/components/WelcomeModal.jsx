@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getTodayMessage } from "@/lib/motivationalMessages";
 
@@ -7,9 +8,18 @@ export default function WelcomeModal({ userId }) {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState(null);
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const forceShow = searchParams.get("showWelcome") === "1";
 
   useEffect(() => {
     async function checkFirstLoginToday() {
+      // لو الرابط فيه ?showWelcome=1 اعرض الرسالة فورًا بدون فحص قاعدة البيانات
+      if (forceShow) {
+        setMessage(getTodayMessage());
+        setShow(true);
+        return;
+      }
+
       const today = new Date().toISOString().split("T")[0];
 
       const { data: profile } = await supabase
@@ -30,7 +40,7 @@ export default function WelcomeModal({ userId }) {
     }
 
     if (userId) checkFirstLoginToday();
-  }, [userId]);
+  }, [userId, forceShow]);
 
   if (!show || !message) return null;
 
